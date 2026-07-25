@@ -1,0 +1,7 @@
+out/
+.DS_Store
+*.class
+urlshortener-data.txt
+.idea/
+.vscode/
+node_modules/
