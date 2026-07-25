@@ -5,7 +5,7 @@
   "main": "api/index.js",
   "scripts": {
     "dev": "java -Dport=8080 -cp out com.urlshortener.Main",
-    "build": "mkdir -p out && javac -d out src/com/urlshortener/*.java"
+    "build": "echo 'Vercel build ready'"
   },
   "keywords": ["url-shortener", "java", "vercel"],
   "author": "Antigravity",

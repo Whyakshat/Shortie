@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/", "destination": "/index.html" },
     { "source": "/style.css", "destination": "/style.css" },
     { "source": "/logo.png", "destination": "/logo.png" },
     { "source": "/favicon.ico", "destination": "/logo.png" },
