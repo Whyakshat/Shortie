@@ -34,7 +34,8 @@ function generateCode() {
 }
 
 module.exports = async (req, res) => {
-  const urlPath = req.url || '/';
+  const rawUrl = req.url || '/';
+  const urlPath = rawUrl.split('?')[0];
   const method = req.method;
 
   // CORS headers
@@ -49,6 +50,33 @@ module.exports = async (req, res) => {
   const host = req.headers['x-forwarded-host'] || req.headers['host'] || 'shortie.vercel.app';
   const proto = req.headers['x-forwarded-proto'] || 'https';
   const baseUrl = `${proto}://${host}`;
+
+  // Serve Root HTML Page
+  if (urlPath === '/' || urlPath === '/index.html') {
+    const indexPath = path.join(process.cwd(), 'public', 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).end(fs.readFileSync(indexPath, 'utf8'));
+    }
+  }
+
+  // Serve Style CSS
+  if (urlPath === '/style.css') {
+    const cssPath = path.join(process.cwd(), 'public', 'style.css');
+    if (fs.existsSync(cssPath)) {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      return res.status(200).end(fs.readFileSync(cssPath, 'utf8'));
+    }
+  }
+
+  // Serve Logo PNG & Favicons
+  if (urlPath === '/logo.png' || urlPath === '/favicon.ico' || urlPath === '/favicon.png' || urlPath === '/apple-touch-icon.png' || urlPath === '/apple-touch-icon-precomposed.png') {
+    const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+    if (fs.existsSync(logoPath)) {
+      res.setHeader('Content-Type', 'image/png');
+      return res.status(200).end(fs.readFileSync(logoPath));
+    }
+  }
 
   // API Check Alias
   if (urlPath.startsWith('/api/check-alias/')) {

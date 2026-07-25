@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/style.css", "destination": "/api/index.js" },
+    { "source": "/logo.png", "destination": "/api/index.js" },
+    { "source": "/favicon.ico", "destination": "/api/index.js" },
+    { "source": "/", "destination": "/api/index.js" },
     { "source": "/:code", "destination": "/api/index.js" }
   ]
 }
