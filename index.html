@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body>
   <canvas id="motionCanvas"></canvas>
@@ -89,7 +90,7 @@
       <button class="modal-close-btn" onclick="closeQrModal()">&times;</button>
       <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:4px; color:var(--text-main);">Link QR Code</h3>
       <p id="qrTargetUrl" style="font-size:0.82rem; color:var(--text-muted); word-break:break-all; margin-bottom:16px;"></p>
-      <canvas id="qrCanvas" width="160" height="160" style="background:#fff; padding:10px; border-radius:14px; margin:0 auto 16px; display:block; border:1px solid rgba(140,120,180,0.1);"></canvas>
+      <canvas id="qrCanvas" width="400" height="400" style="width:180px; height:180px; background:#fff; padding:10px; border-radius:14px; margin:0 auto 16px; display:block; border:1px solid rgba(140,120,180,0.1);"></canvas>
       <button class="btn-ui primary" style="width:100%; justify-content:center;" onclick="downloadQrCode()">Save Image</button>
     </div>
   </div>
@@ -325,40 +326,40 @@
     function drawQr(str) {
       const canvas = document.getElementById('qrCanvas');
       const ctx = canvas.getContext('2d');
-      const dim = 160;
+      const dim = canvas.width;
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, dim, dim);
 
-      const grid = 21;
-      const cell = Math.floor(dim / grid);
-      const pad = Math.floor((dim - grid * cell) / 2);
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(str);
+        qr.make();
 
-      ctx.fillStyle = '#6355d8';
-      drawEye(ctx, pad, pad, cell);
-      drawEye(ctx, pad + (grid - 7) * cell, pad, cell);
-      drawEye(ctx, pad, pad + (grid - 7) * cell, cell);
+        const count = qr.getModuleCount();
+        const quietZone = 4;
+        const total = count + quietZone * 2;
+        const cell = dim / total;
+        const cellSize = Math.ceil(cell);
 
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
-
-      for (let r = 0; r < grid; r++) {
-        for (let c = 0; c < grid; c++) {
-          if ((r < 7 && c < 7) || (r < 7 && c >= grid - 7) || (r >= grid - 7 && c < 7)) continue;
-          const val = (Math.sin(hash + r * 37 + c * 19) * 10000);
-          if (val - Math.floor(val) > 0.44) {
-            ctx.fillRect(pad + c * cell, pad + r * cell, cell, cell);
+        ctx.fillStyle = '#1e1926';
+        for (let r = 0; r < count; r++) {
+          for (let c = 0; c < count; c++) {
+            if (qr.isDark(r, c)) {
+              ctx.fillRect(
+                Math.round((quietZone + c) * cell),
+                Math.round((quietZone + r) * cell),
+                cellSize,
+                cellSize
+              );
+            }
           }
         }
+      } catch (e) {
+        ctx.fillStyle = '#1e1926';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR generation failed', dim / 2, dim / 2);
       }
-    }
-
-    function drawEye(ctx, x, y, c) {
-      ctx.fillStyle = '#6355d8';
-      ctx.fillRect(x, y, 7 * c, 7 * c);
-      ctx.fillStyle = '#FFF';
-      ctx.fillRect(x + c, y + c, 5 * c, 5 * c);
-      ctx.fillStyle = '#6355d8';
-      ctx.fillRect(x + 2 * c, y + 2 * c, 3 * c, 3 * c);
     }
 
     function downloadQrCode() {
